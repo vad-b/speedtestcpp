@@ -17,18 +17,30 @@ PKG_BUILD_FLAGS:=no-mips16
 
 include $(INCLUDE_DIR)/package.mk
 
+define Package/libspeedtestcpp
+  SECTION:=libs
+  CATEGORY:=Libraries
+  TITLE:=speedtest.net client library (C++)
+  URL:=https://github.com/vad-b/speedtestcpp
+  DEPENDS:=+libcurl +libstdcpp
+endef
+
+define Package/libspeedtestcpp/description
+  Shared library backing the speedtest-cpp CLI: C++ implementation of a
+  speedtest.net client using the raw TCP protocol for better accuracy.
+endef
+
 define Package/speedtest-cpp
   SECTION:=net
   CATEGORY:=Network
   TITLE:=Command line speedtest.net client (C++)
   URL:=https://github.com/vad-b/speedtestcpp
-  DEPENDS:=+libcurl +libstdcpp
+  DEPENDS:=+libcurl +libstdcpp +libspeedtestcpp
 endef
 
 define Package/speedtest-cpp/description
   Unofficial command line interface for testing internet connection
-  bandwidth using speedtest.net. C++ implementation supporting the
-  new raw TCP protocol for better accuracy.
+  bandwidth using speedtest.net.
 endef
 
 MAKE_FLAGS += \
@@ -43,12 +55,16 @@ define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) speedtest
 endef
 
-define Package/speedtest-cpp/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/speedtest $(1)/usr/bin/speedtest-cpp
+define Package/libspeedtestcpp/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libspeedtestcpp.so.2.0.0 $(1)/usr/lib/
 	ln -sf libspeedtestcpp.so.2.0.0 $(1)/usr/lib/libspeedtestcpp.so
 endef
 
+define Package/speedtest-cpp/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/speedtest $(1)/usr/bin/speedtest-cpp
+endef
+
+$(eval $(call BuildPackage,libspeedtestcpp))
 $(eval $(call BuildPackage,speedtest-cpp))

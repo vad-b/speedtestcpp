@@ -109,6 +109,7 @@ jobs:
             echo "CONFIG_AUTOREMOVE=n"
             echo "${{ matrix.extra_config }}"
             echo "CONFIG_PACKAGE_speedtest-cpp=m"
+            echo "CONFIG_PACKAGE_libspeedtestcpp=m"
           } > .config
           make defconfig
           make download -j"$(nproc)" V=s || make download V=s
@@ -119,7 +120,7 @@ jobs:
           cd sdk
           make package/speedtest-cpp/{clean,compile} -j"$(nproc)" V=s
           mkdir -p "$GITHUB_WORKSPACE/release-artifacts"
-          find bin/packages -type f -name "speedtest-cpp*.${{ matrix.package_ext }}" \
+          find bin/packages -type f \( -name "speedtest-cpp*.${{ matrix.package_ext }}" -o -name "libspeedtestcpp*.${{ matrix.package_ext }}" \) \
             -exec cp {} "$GITHUB_WORKSPACE/release-artifacts/" \;
           if ! ls "$GITHUB_WORKSPACE/release-artifacts/"*.${{ matrix.package_ext }} >/dev/null 2>&1; then
             echo "No .${{ matrix.package_ext }} package was produced"
